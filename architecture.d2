@@ -1,0 +1,271 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+    pad: 60
+  }
+}
+
+direction: right
+
+title: "OpenBB Platform  ·  Network & Infrastructure Architecture" {
+  near: top-center
+  shape: text
+  style: {
+    font-size: 36
+    bold: true
+    font-color: "#0F172A"
+  }
+}
+
+classes: {
+  client: {
+    width: 200
+    style: {
+      fill: "#DBEAFE"
+      stroke: "#2563EB"
+      stroke-width: 2
+      font-color: "#1E3A5F"
+      border-radius: 10
+      font-size: 17
+    }
+  }
+  gateway: {
+    shape: hexagon
+    width: 250
+    style: {
+      fill: "#FEF3C7"
+      stroke: "#D97706"
+      stroke-width: 2
+      font-color: "#78350F"
+      font-size: 17
+    }
+  }
+  core: {
+    width: 220
+    style: {
+      fill: "#E0E7FF"
+      stroke: "#4F46E5"
+      stroke-width: 2
+      font-color: "#312E81"
+      border-radius: 10
+      font-size: 17
+    }
+  }
+  provider: {
+    width: 150
+    height: 70
+    style: {
+      fill: "#D1FAE5"
+      stroke: "#059669"
+      stroke-width: 2
+      font-color: "#064E3B"
+      border-radius: 8
+      font-size: 16
+    }
+  }
+  infra: {
+    style: {
+      fill: "#F3F4F6"
+      stroke: "#6B7280"
+      stroke-width: 2
+      font-color: "#1F2937"
+      border-radius: 10
+      font-size: 16
+    }
+  }
+  group: {
+    style: {
+      fill: "#F8FAFC"
+      stroke: "#CBD5E1"
+      stroke-width: 2
+      font-color: "#334155"
+      font-size: 22
+      bold: true
+      border-radius: 16
+    }
+  }
+  http: {
+    style: {
+      stroke: "#2563EB"
+      stroke-width: 2
+      font-size: 15
+      font-color: "#1E3A5F"
+    }
+  }
+  inproc: {
+    style: {
+      stroke: "#6366F1"
+      stroke-width: 2
+      stroke-dash: 4
+      font-size: 15
+      font-color: "#4338CA"
+    }
+  }
+  external: {
+    style: {
+      stroke: "#059669"
+      stroke-width: 3
+      font-size: 15
+      font-color: "#064E3B"
+      animated: true
+    }
+  }
+  aux: {
+    style: {
+      stroke: "#94A3B8"
+      stroke-width: 2
+      stroke-dash: 6
+      font-size: 14
+      font-color: "#475569"
+    }
+  }
+}
+
+# ───────────────────────── CLIENT SURFACES ─────────────────────────
+clients: "Client Surfaces" {
+  class: group
+
+  sdk: "Python SDK\nimport openbb" {class: client}
+  cli: "OpenBB CLI" {class: client}
+  desktop: "Desktop App\nTauri + React" {class: client}
+  webapp: "Research Webapp\nReact / Webpack" {class: client}
+  rest: "Direct REST\ncurl · scripts" {class: client}
+  llm: "LLM Agents" {class: client}
+}
+
+# ───────────────────────── ACCESS LAYER ─────────────────────────
+access: "Access Layer" {
+  class: group
+
+  inproc: "In-Process\ndirect call path" {
+    class: gateway
+    shape: rectangle
+    style.stroke-dash: 4
+    style.border-radius: 10
+  }
+  api: "FastAPI REST\nuvicorn  :6900\nCORS · AuthService" {class: gateway}
+  mcp: "MCP Server\nFastMCP · SSE\nOAuth-style auth" {class: gateway}
+}
+
+# ───────────────────────── CORE PLATFORM ─────────────────────────
+core: "openbb_core" {
+  class: group
+  direction: right
+
+  router: "Router\nExtensionLoader\n/commands · /coverage" {class: core}
+  runner: "CommandRunner\n→ Query\n→ OBBject" {class: core}
+  pi: "ProviderInterface\nQueryExecutor\nTET fetchers" {class: core}
+
+  router -> runner: {class: inproc}
+  runner -> pi: {class: inproc}
+}
+
+# ───────────────────────── EXTERNAL DATA PROVIDERS ─────────────────────────
+providers: "External Data Providers   ·   ~33 HTTPS fetchers" {
+  class: group
+  grid-columns: 3
+  grid-gap: 20
+
+  yf: "yfinance" {class: provider}
+  fmp: "FMP" {class: provider}
+  intr: "Intrinio" {class: provider}
+  tii: "Tiingo" {class: provider}
+  av: "Alpha Vantage" {class: provider}
+  fred: "FRED" {class: provider}
+  sec: "SEC EDGAR" {class: provider}
+  ndq: "Nasdaq" {class: provider}
+  bz: "Benzinga" {class: provider}
+  trd: "Tradier" {class: provider}
+  cboe: "CBOE" {class: provider}
+  more: "… +22 more" {
+    class: infra
+    width: 150
+    height: 70
+    style.stroke-dash: 4
+  }
+}
+
+# ───────────────────────── LOCAL HOST SERVICES ─────────────────────────
+local: "Local Host" {
+  class: group
+
+  config: "~/.openbb_platform/\nuser_settings.json\ncredentials · prefs" {
+    class: infra
+    shape: cylinder
+    width: 220
+  }
+  pywry: "PyWry WebView\nPlotly charts" {
+    class: infra
+    width: 200
+  }
+  jupyter: "Jupyter Server\n:8888" {
+    class: infra
+    width: 200
+  }
+}
+
+# ───────────────────────── EXTERNAL CLOUD ─────────────────────────
+hub: "OpenBB Hub\nmy.openbb.co\naccount · workspace" {
+  shape: cloud
+  width: 280
+  style: {
+    fill: "#FEF3C7"
+    stroke: "#D97706"
+    stroke-width: 2
+    font-color: "#78350F"
+    font-size: 17
+  }
+}
+
+# ═════════════════════════ CONNECTIONS ═════════════════════════
+
+# clients → access
+clients.sdk -> access.inproc: {class: inproc}
+clients.cli -> access.inproc: {class: inproc}
+clients.desktop -> access.api: "HTTP (spawns)" {class: http}
+clients.webapp -> access.api: "HTTP :6900" {class: http}
+clients.rest -> access.api: "HTTP/JSON" {class: http}
+clients.llm -> access.mcp: "MCP/SSE" {class: http}
+
+# access → core
+access.inproc -> core.router: {class: inproc}
+access.api -> core.router: "dispatch" {class: http}
+access.mcp -> core.router: {class: http}
+
+# core → external data
+core.pi -> providers: "HTTPS\nREST · WS" {class: external}
+
+# auxiliary local services
+clients.desktop -> local.jupyter: "spawns" {class: aux}
+core.runner -> local.pywry: "render" {class: aux}
+core.runner -> local.config: "read" {class: aux}
+access.api -> hub: "widgets.json" {class: aux}
+local.config -> hub: "sync" {class: aux}
+
+# ───────────────────────── LEGEND ─────────────────────────
+legend: "Legend" {
+  near: bottom-right
+  direction: right
+  style: {
+    fill: "#FFFFFF"
+    stroke: "#CBD5E1"
+    font-size: 18
+    font-color: "#334155"
+    bold: true
+    border-radius: 12
+  }
+
+  l1: "" {width: 8; height: 8; style.opacity: 0}
+  l2: "HTTP / network" {shape: text; style.font-size: 15; style.font-color: "#1E3A5F"}
+  l3: "" {width: 8; height: 8; style.opacity: 0}
+  l4: "in-process" {shape: text; style.font-size: 15; style.font-color: "#4338CA"}
+  l5: "" {width: 8; height: 8; style.opacity: 0}
+  l6: "external HTTPS" {shape: text; style.font-size: 15; style.font-color: "#064E3B"}
+  l7: "" {width: 8; height: 8; style.opacity: 0}
+  l8: "auxiliary" {shape: text; style.font-size: 15; style.font-color: "#475569"}
+
+  l1 -> l2: {class: http}
+  l3 -> l4: {class: inproc}
+  l5 -> l6: {class: external}
+  l7 -> l8: {class: aux}
+}
